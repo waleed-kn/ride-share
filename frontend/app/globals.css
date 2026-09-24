@@ -1,0 +1,43 @@
+@import "tailwindcss";
+
+@theme {
+  /* RideShare design tokens — night-first, map-as-canvas palette */
+  --color-night: #0F1115;
+  --color-night-raised: #16191F;
+  --color-fog: #F7F7F5;
+  --color-fog-dim: #A8ABB3;
+  --color-indigo: #3D5AFE;
+  --color-indigo-dim: #2A3FCC;
+  --color-confirm: #2ECC71;
+  --color-warn: #F5A623;
+  --color-line: #262A33;
+
+  /* Using a system-font stack that includes Inter where installed.
+     If you want next/font-managed Inter (self-hosted, no runtime
+     Google Fonts dependency), swap this for the Geist/Inter setup
+     Next.js scaffolds by default — see app/layout.tsx. */
+  --font-sans: -apple-system, "Segoe UI", Inter, Roboto, "Helvetica Neue", Arial, sans-serif;
+}
+
+html {
+  color-scheme: dark;
+}
+
+body {
+  font-family: var(--font-sans);
+}
+
+/* Respect reduced-motion preference app-wide */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* Visible keyboard focus, styled to match the palette rather than removed */
+:focus-visible {
+  outline: 2px solid var(--color-indigo);
+  outline-offset: 2px;
+}

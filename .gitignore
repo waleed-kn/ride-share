@@ -1,0 +1,15 @@
+Set-Content -Path .gitignore -Value @"
+node_modules/
+*/node_modules/
+.env
+.env.*
+*.env
+*/.env
+*/.env.*
+.next/
+*/.next/
+dist/
+*/dist/
+build/
+*/build/
+"@
