@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import { AuthProvider } from "@/lib/auth";
-import "mapbox-gl/dist/mapbox-gl.css";
 
 export const metadata: Metadata = {
   title: "RideShare",
