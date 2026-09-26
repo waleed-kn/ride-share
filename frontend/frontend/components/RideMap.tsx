@@ -34,6 +34,9 @@ export function RideMap({ center, pickup, dropoff, driverPosition, onPickupChang
 
     mapRef.current = map;
 
+    // Force Mapbox to remeasure the container once fully loaded — guards
+    // against the container's size not being final at init time (e.g.
+    // flex layouts where height resolves after first paint).
     map.on("load", () => {
       map.resize();
     });
@@ -45,7 +48,10 @@ export function RideMap({ center, pickup, dropoff, driverPosition, onPickupChang
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // Click handler — re-attached whenever onPickupChange changes
+  // Click handler — re-attached whenever onPickupChange changes, so it
+  // always reflects the current stage (picking pickup vs dropoff).
+  // Attaching this once at map-init would freeze the handler's closure
+  // at mount time and it would never see later stage updates.
   useEffect(() => {
     const map = mapRef.current;
     if (!map || !onPickupChange) return;

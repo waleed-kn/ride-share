@@ -194,7 +194,7 @@ export default function RiderPage() {
             <div className="flex flex-col gap-4">
               <StatusPill status={ride.status} />
 
-              {ride.status !== "completed" && ride.fare != null && (
+              {ride.status !== "completed" && ride.fare && (
                 <p className="text-[13px] text-fog-dim">
                   Estimated fare:{" "}
                   <span className="font-medium text-fog">${Number(ride.fare).toFixed(2)}</span>
