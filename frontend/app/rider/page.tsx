@@ -130,15 +130,23 @@ export default function RiderPage() {
         <span className="rounded-full bg-night-raised/90 px-3 py-1.5 text-[14px] font-semibold tracking-tight backdrop-blur-sm">
           RideShare
         </span>
-        <button
-          onClick={() => {
-            logout();
-            router.push("/");
-          }}
-          className="rounded-full bg-night-raised/90 px-3 py-1.5 text-[13px] text-fog-dim backdrop-blur-sm hover:text-fog"
-        >
-          Log out
-        </button>
+        <div className="flex items-center gap-2">
+          <button
+            onClick={() => router.push("/history")}
+            className="rounded-full bg-night-raised/90 px-3 py-1.5 text-[13px] text-fog-dim backdrop-blur-sm hover:text-fog"
+          >
+            History
+          </button>
+          <button
+            onClick={() => {
+              logout();
+              router.push("/");
+            }}
+            className="rounded-full bg-night-raised/90 px-3 py-1.5 text-[13px] text-fog-dim backdrop-blur-sm hover:text-fog"
+          >
+            Log out
+          </button>
+        </div>
       </header>
 
       <div className="relative flex-1">
