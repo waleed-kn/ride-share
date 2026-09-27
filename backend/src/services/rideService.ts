@@ -4,6 +4,20 @@ import { assertTransition } from "./rideStateMachine";
 import { calculateFare } from "./matchingEngine";
 import { env } from "../config/env";
 
+/**
+ * Postgres's pg driver returns NUMERIC columns as strings (to avoid
+ * silent float precision loss), so `fare` comes back as "5.60" rather
+ * than 5.6 from any raw query. Every function in this file that returns
+ * a Ride goes through this so the rest of the app — and the frontend
+ * JSON response — always sees fare as a real number.
+ */
+function normalizeRide(row: Ride): Ride {
+  return {
+    ...row,
+    fare: row.fare === null ? null : Number(row.fare),
+  };
+}
+
 export async function createRide(
   riderId: string,
   pickup: Coordinates,
@@ -18,12 +32,12 @@ export async function createRide(
     [riderId, pickup.lat, pickup.lng, dropoff.lat, dropoff.lng, fare]
   );
 
-  return result.rows[0];
+  return normalizeRide(result.rows[0]);
 }
 
 export async function getRideById(rideId: string): Promise<Ride | null> {
   const result = await pool.query<Ride>("SELECT * FROM rides WHERE id = $1", [rideId]);
-  return result.rows[0] ?? null;
+  return result.rows[0] ? normalizeRide(result.rows[0]) : null;
 }
 
 export async function assignDriver(rideId: string, driverId: string): Promise<Ride> {
@@ -36,7 +50,7 @@ export async function assignDriver(rideId: string, driverId: string): Promise<Ri
     `UPDATE rides SET driver_id = $1, status = 'accepted' WHERE id = $2 RETURNING *`,
     [driverId, rideId]
   );
-  return result.rows[0];
+  return normalizeRide(result.rows[0]);
 }
 
 /**
@@ -56,7 +70,7 @@ export async function updateRideStatus(rideId: string, newStatus: RideStatus): P
     `UPDATE rides SET status = $1 ${completedAtClause} WHERE id = $2 RETURNING *`,
     [newStatus, rideId]
   );
-  return result.rows[0];
+  return normalizeRide(result.rows[0]);
 }
 
 export async function getRideHistory(userId: string, role: "rider" | "driver"): Promise<Ride[]> {
@@ -65,5 +79,5 @@ export async function getRideHistory(userId: string, role: "rider" | "driver"): 
     `SELECT * FROM rides WHERE ${column} = $1 ORDER BY requested_at DESC`,
     [userId]
   );
-  return result.rows;
+  return result.rows.map(normalizeRide);
 }

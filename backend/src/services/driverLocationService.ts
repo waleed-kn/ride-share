@@ -2,10 +2,6 @@ import { redis, RedisKeys } from "../config/redis";
 import { Coordinates } from "../types";
 import { AvailableDriver } from "./matchingEngine";
 
-/**
- * Called on every driver:location_update WebSocket event (see sockets/).
- * GEOADD upserts the driver's position in the shared geo index.
- */
 export async function updateDriverLocation(
   driverId: string,
   location: Coordinates
@@ -18,33 +14,24 @@ export async function updateDriverLocation(
 }
 
 export async function setDriverAvailable(driverId: string): Promise<void> {
-  await redis.set(RedisKeys.driverAvailable(driverId), "1");
+  const key = RedisKeys.driverAvailable(driverId);
+  const result = await redis.set(key, "1");
+  console.log(`setDriverAvailable: key=${key} result=${result}`);
 }
 
 export async function setDriverUnavailable(driverId: string): Promise<void> {
   await redis.del(RedisKeys.driverAvailable(driverId));
 }
-
 export async function isDriverAvailable(driverId: string): Promise<boolean> {
   const value = await redis.get(RedisKeys.driverAvailable(driverId));
-  return value === "1";
+  console.log(`isDriverAvailable check: driverId=${driverId} rawValue=${JSON.stringify(value)} type=${typeof value}`);
+  return value === "1" || value === 1;
 }
 
-/**
- * Removes a driver from the geo index entirely — called when a driver
- * goes offline, not just when they become unavailable mid-ride. Offline
- * drivers shouldn't appear in search radius queries at all.
- */
 export async function removeDriverFromIndex(driverId: string): Promise<void> {
   await redis.zrem(RedisKeys.driverGeoIndex, driverId);
 }
 
-/**
- * The Redis half of matching: GEOSEARCH for candidates within a radius,
- * filtered to only those currently marked available. Ranking/ordering
- * of the results is handled separately by rankDriversByDistance() in
- * matchingEngine.ts — this function's only job is fetching candidates.
- */
 export async function findNearbyAvailableDrivers(
   pickup: Coordinates,
   radiusKm: number
@@ -60,9 +47,13 @@ export async function findNearbyAvailableDrivers(
 
   const candidates: AvailableDriver[] = [];
 
+  // Temporary debug logging — remove once matching is confirmed working.
+  console.log("GEOSEARCH raw results:", JSON.stringify(results, null, 2));
+
   for (const result of results as any[]) {
     const driverId = typeof result === "string" ? result : result.member;
     const available = await isDriverAvailable(driverId);
+    console.log(`Checked driver ${driverId}: available=${available}`);
     if (!available) continue;
 
     const coord = typeof result === "object" ? result.coord : null;
