@@ -1,4 +1,5 @@
 # RideShare
+LIVE DEMO = https://ride-share-indol-two.vercel.app/
 
 A full-stack, real-time ride-hailing platform built as a portfolio project to demonstrate distributed-systems engineering — real-time sync, geospatial matching, and state machines — on a zero-cost infrastructure stack.
 
